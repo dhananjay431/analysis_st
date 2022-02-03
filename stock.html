@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="./csvjson.js"></script>
+    <script>
+
+        var d = _.chain(data).groupBy("ISIN_Code").values().reduce((a, b) => {
+            var n = _.map(b, "Type").forEach(element => {
+                delete b[0].Type;
+                b[0][element] = true;
+            });
+            a.push(b[0]);
+            return a;
+
+        }, []).value()
+        console.log(d)
+    </script>
+    <title>Document</title>
+</head>
+
+<body>
+</body>
+
+</html>
