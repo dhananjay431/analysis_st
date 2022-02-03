@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/xlsx.min.js"></script>
+    <script src="./js/lodash.min.js"></script>
+    <!-- table -->
+    <link rel="stylesheet" href="./css/jquery.dataTables.min.css">
+    <script src="./js/jquery.dataTables.min.js"></script>
+    <!-- bootstrap  -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <script src="./js/popper.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./xlsx_file_read.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="mb-3">
+            <label for="formFileSm" class="form-label"> <a
+                    href="https://www.nseindia.com/market-data/live-market-indices" target="_blank">Download and Upload
+                    File</a>
+                <a href="https://www.nseindia.com/option-chain" target="_blank">option-chain</a>
+            </label>
+            <input class="form-control form-control-sm" id="file" type="file">
+        </div>
+        <table id="example" class="table table-sm table-striped table-hover" width="100%"></table>
+    </div>
+    <script>
+
+        $("#file").change(function (ev) {
+            console.log(ev.target.value)
+
+            const file = ev.target.files[0];
+            readFile(file).then(resp => {
+                for (var i in resp) {
+                    var k = Object.keys(resp[i][0]);
+                    var z = resp[i].map(d => {
+                        var a = [];
+                        for (var i = 0; i < k.length; i++) {
+                            a.push(d[k[i]]);
+                        }
+                        return a;
+                    })
+                    k.push("1W");
+                    k.push("1M");
+                    k.push("1Y");
+                    k.push("cal");
+                    z = z.map(d => {
+                        var a8 = +((1 - (d[8] / d[1])) * 100).toFixed(2) || 0;
+                        var a9 = +((1 - (d[9] / d[1])) * 100).toFixed(2) || 0;
+                        var a10 = +((1 - (d[10] / d[1])) * 100).toFixed(2) || 0;
+
+                        d.push(a8);
+                        d.push(a9);
+                        d.push(a10);
+
+                        d.push(+(a8 + a9 + a10).toFixed(2));
+
+                        return d;
+                    })
+                    // z.unshift(k);
+                    // https://www.nseindia.com/market-data/live-equity-market?symbol=
+                    var columns = k.map((d, i) => {
+                        return {
+                            title: d,
+                            "visible": i >= 3 && i <= 10 ? false : true,
+                            render: function (data, type) {
+                                if (i == 0) {
+                                    return `<a href='https://www.nseindia.com/market-data/live-equity-market?symbol=${data}' target="_blank"> ${data} </a>`;
+                                }
+                                else {
+                                    return data;
+                                }
+
+
+                            }
+                        };
+                    })
+                    $('#example').DataTable({
+                        data: z,
+                        columns: columns
+                    });
+                    console.log("z=>", z);
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>
